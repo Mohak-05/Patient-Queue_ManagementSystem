@@ -1,286 +1,54 @@
-# Intelligent Patient Queue Management System
+# Patient Queue Management System
 
-A Machine Learning-based patient queue management system that predicts patient arrival times using location-based ETA prediction with travel mode consideration.
+## Dataset Generation
 
-## 🏥 System Overview
+### Original Travel Dataset (4,414 records)
 
-This system simulates real-time patient queue updates by predicting ETAs based on:
+**Method**: Realistic multi-factor modeling
 
-- **Patient travel mode**: Walk, Bike, Car
-- **Speed**: Variable speed based on travel mode (km/h)
-- **Distance**: Calculated using Haversine formula
-- **ETA**: Predicted using machine learning models (target variable in minutes)
+- **Distance**: Exponential/Gamma/Normal distributions by travel mode
+- **Speed**: Normal distribution with traffic/weather factors
+- **ETA**: Distance/speed + mode-specific delays + random variation
 
-## 🗂️ Project Structure
+**Travel Mode Parameters:**
+| Mode | Speed Range (km/h) | Max Distance (km) | Distribution |
+|------|-------------------|-------------------|--------------|
+| Walk | 3.0 - 7.0 | 3.0 | 25% |
+| Bike | 8.0 - 25.0 | 8.0 | 20% |
+| Car | 15.0 - 80.0 | 25.0 | 45% |
+| PublicTransport | 12.0 - 40.0 | 20.0 | 10% |
 
-```
-Patient-Queue_ManagementSystem/
-├── data/
-│   └── sample_travel_data.csv      # Sample training data
-├── utils/
-│   ├── __init__.py                 # Package initialization
-│   ├── haversine.py               # Distance calculation using Haversine formula
-│   └── geo_simulation.py          # GPS coordinate and travel mode simulation
-├── models/
-│   ├── __init__.py                # Package initialization
-│   ├── train_random_forest.py    # Random Forest regressor
-│   └── stacking_model.py          # Stacking ensemble model
-├── main.py                        # Main simulation script
-├── requirements.txt               # Python dependencies
-└── README.md                      # This file
-```
+### GPS Tracking Dataset (17,656 files)
 
-## 🚀 Features
+**Method**: Realistic path simulation with 2-minute GPS updates
 
-### Core Components
+**Geolocation Generation:**
 
-1. **Data Generation**
+- **Starting Points**: Trigonometric distance/angle conversion from hospital (40.7128, -74.0060)
+  - Walk/Bike: Uniform random angles (0-360°)
+  - Car: Major road bias (0°, 45°, 90°, 135°, 180°, 225°, 270°, 315° ± 15°)
+  - PublicTransport: Transit corridor bias (15°, 75°, 105°, 165°, 195°, 255°, 285°, 345° ± 10°)
+- **Coordinate Formula**: `lat_offset = (distance × cos(angle)) / 111.0`, `lon_offset = (distance × sin(angle)) / (111.0 × cos(hospital_lat))`
+- **Path Simulation**: Linear interpolation + perpendicular road curves
+  - Curve patterns: Walk (random offsets), Bike (gentle curves), Car (multiple road curves), PublicTransport (stop-based deviations)
 
-   - Simulated patient GPS coordinates
-   - Travel mode selection (Walk/Bike/Car with realistic speeds)
-   - Distance calculation using Haversine formula
+**Structure:**
 
-2. **Machine Learning Models**
+- `data/geolocations/with_traffic/` - GPS tracking with traffic delays
+- `data/geolocations/no_traffic/` - GPS tracking baseline
+- `data/timestamps/with_traffic/` - Time analysis with traffic
+- `data/timestamps/no_traffic/` - Time analysis baseline
 
-   - **Random Forest Regressor**: Primary ETA prediction model
-   - **Stacking Ensemble**: Combines RandomForest, KNN, and LinearRegression
-   - Feature engineering with travel mode encoding and scaling
+**Parameters:**
 
-3. **Real-time Simulation**
-
-   - Queue updates every 2 minutes
-   - Dynamic patient arrival and departure
-   - Sorted queue display by ETA
-
-4. **Queue Management**
-   - Auto-removal of patients when ETA ≤ 0
-   - CLI printout: [PatientID, ETA, TravelMode, Distance]
-   - Real-time queue ranking
-
-## 📋 Installation & Setup
-
-### 1. Clone/Download the Project
-
-```bash
-cd Patient-Queue_ManagementSystem
-```
-
-### 2. Install Dependencies
-
-```bash
-pip install -r requirements.txt
-```
-
-### 3. Train Models (Optional)
-
-```bash
-python main.py --train
-```
-
-## 🎮 Usage
-
-### Basic Simulation (20 minutes, Stacking model)
-
-```bash
-python main.py
-```
-
-### Using Random Forest Model
-
-```bash
-python main.py random_forest
-```
-
-### Custom Duration (30 minutes)
-
-```bash
-python main.py stacking 30
-```
-
-### Train Models Only
-
-```bash
-python main.py --train
-```
-
-## 🔧 Configuration
-
-### Travel Mode Configurations
-
-- **Walk**: 3-7 km/h (30% probability)
-- **Bike**: 10-20 km/h (30% probability)
-- **Car**: 25-60 km/h (40% probability)
-
-### Default Settings
-
-- **Hospital Location**: NYC coordinates (40.7128, -74.0060)
+- **Hospital Location**: 40.7128, -74.0060 (fixed)
 - **Update Interval**: 2 minutes
-- **Patient Radius**: 10 km from hospital
-- **Initial Patients**: 5-10 random patients
+- **Road Variation**: Walk 15%, Bike 20%, Car 35%, PublicTransport 40%
+- **Distance Accuracy**: ±10-20% variation from original dataset
+- **Traffic Delays**: Rush hours 2.0-2.2×, Lunch 1.3×, Normal 1.0×
+- **File Organization**: 1,000 files per batch directory
 
-## 🧠 Machine Learning Models
+**Output Format:**
 
-### 1. Random Forest Regressor
-
-- **Features**: Distance, Speed, Travel Mode (encoded)
-- **Hyperparameters**: 100 estimators, max_depth=10
-- **Performance Metrics**: MAE, RMSE, R²
-
-### 2. Stacking Ensemble
-
-- **Base Models**:
-  - Random Forest (50 estimators)
-  - K-Nearest Neighbors (k=5)
-  - Linear Regression
-- **Meta-learner**: Linear Regression
-- **Cross-validation**: 5-fold CV
-
-## 📊 Sample Output
-
-```
-================================================================================
-PATIENT QUEUE STATUS - 14:32:15
-Model: STACKING
-================================================================================
-Rank  Patient ID  ETA (min)   Travel Mode Distance (km)
---------------------------------------------------------------------------------
-1     P003        2.1         Car         1.8
-2     P007        3.4         Bike        0.9
-3     P001        4.2         Walk        0.3
-4     P005        5.8         Car         2.4
-5     P002        7.1         Bike        1.5
---------------------------------------------------------------------------------
-Total patients in queue: 5
-================================================================================
-```
-
-## 🔍 Key Functions
-
-### Utils Package
-
-- `haversine_distance()`: Calculate great-circle distance
-- `GeoSimulator.generate_patient_data()`: Create realistic patient scenarios
-- `create_sample_dataset()`: Generate training data
-
-### Models Package
-
-- `RandomForestETAPredictor.train()`: Train Random Forest model
-- `StackingETAPredictor.predict()`: Ensemble ETA prediction
-- `save_model()` / `load_model()`: Model persistence
-
-### Main Simulation
-
-- `PatientQueueManager`: Core queue management logic
-- `Patient`: Individual patient representation
-- `run_simulation()`: Main simulation loop
-
-## 🎯 Simulation Flow
-
-1. **Initialize**: Load/train ML model, generate initial patients (5-10)
-2. **Update Loop** (every 2 minutes):
-   - Update patient ETAs using ML prediction
-   - Remove arrived patients (ETA ≤ 0)
-   - Add new patients periodically
-   - Display sorted queue
-3. **Real-time Display**: Show current queue with rankings
-
-## 📈 Model Performance
-
-The system tracks and displays:
-
-- Mean Absolute Error (MAE)
-- Root Mean Square Error (RMSE)
-- R-squared (R²) score
-- Cross-validation scores
-- Individual base model performance (for Stacking)
-
-## 🛠️ Customization
-
-### Adding New Travel Modes
-
-Edit `utils/geo_simulation.py`:
-
-```python
-TRAVEL_MODES.append(
-    TravelModeConfig("Scooter", 15.0, 25.0, 0.1)
-)
-```
-
-### Changing Hospital Location
-
-Modify coordinates in `main.py`:
-
-```python
-queue_manager = PatientQueueManager(lat=your_lat, lon=your_lon)
-```
-
-### Model Hyperparameters
-
-Adjust parameters in model files:
-
-```python
-RandomForestRegressor(n_estimators=200, max_depth=15)
-```
-
-## 🔬 Testing Individual Components
-
-### Test Haversine Distance
-
-```bash
-cd utils
-python haversine.py
-```
-
-### Test Geo Simulation
-
-```bash
-cd utils
-python geo_simulation.py
-```
-
-### Test Random Forest Model
-
-```bash
-cd models
-python train_random_forest.py
-```
-
-### Test Stacking Model
-
-```bash
-cd models
-python stacking_model.py
-```
-
-## 📊 Data Format
-
-The system uses CSV data with columns:
-
-- `Distance`: Distance in kilometers (float)
-- `Speed`: Speed in km/h (float)
-- `TravelMode`: Walk/Bike/Car (string)
-- `ETA`: Target variable in minutes (float)
-
-## 🚦 Error Handling
-
-- **Missing Models**: Trains on-the-fly or uses basic ETA calculation
-- **Invalid Predictions**: Falls back to time-based ETA updates
-- **Data Issues**: Handles unseen travel modes gracefully
-- **Interruption**: Graceful shutdown with Ctrl+C
-
-## 🤝 Contributing
-
-To extend the system:
-
-1. Add new travel modes in `geo_simulation.py`
-2. Implement additional ML models in `models/`
-3. Enhance visualization in `main.py`
-4. Add new distance calculation methods in `haversine.py`
-
-## 📝 License
-
-This project is created for educational and research purposes.
-
----
-
-**Note**: This system simulates a patient queue management scenario and should be adapted with real-world considerations for production use, including privacy, security, and regulatory compliance.
+- **Geolocations**: journey_id, timestamp_minutes, latitude, longitude, distance_remaining_km, eta_remaining_minutes
+- **Timestamps**: journey_id, update_sequence, elapsed_minutes, time_of_day_hour, is_rush_hour, original_eta_minutes, actual_duration_minutes, time_variance_percent, travel_mode, original_distance_km, original_speed_kmh
