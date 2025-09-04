@@ -52,3 +52,59 @@
 
 - **Geolocations**: journey_id, timestamp_minutes, latitude, longitude, distance_remaining_km, eta_remaining_minutes
 - **Timestamps**: journey_id, update_sequence, elapsed_minutes, time_of_day_hour, is_rush_hour, original_eta_minutes, actual_duration_minutes, time_variance_percent, travel_mode, original_distance_km, original_speed_kmh
+
+## ML Models
+
+### Random Forest Regressor
+
+**Features**: Distance, Speed, TravelMode_encoded (3 features)
+**Parameters**:
+
+- `n_estimators=50` - Conservative ensemble size for 4K dataset
+- `max_depth=10` - Prevents overfitting with limited features
+- `min_samples_split=20` - Requires sufficient samples for splits
+- `min_samples_leaf=10` - Ensures statistical significance in leaves
+- Bootstrap sampling with feature randomness (√3 ≈ 2 features per split)
+
+### Multi-Layer Perceptron
+
+**Features**: Distance, Speed, TravelMode_encoded (StandardScaler applied)
+**Architecture**: Input(3) → Hidden(16) → Hidden(8) → Output(1)
+**Parameters**:
+
+- `hidden_layer_sizes=(16,8)` - Small architecture for 3-feature dataset
+- `solver='lbfgs'` - Efficient for small-medium datasets
+- `alpha=0.01` - L2 regularization prevents overfitting
+- `activation='relu'` - Non-linear activation function
+- Total parameters: 184 (24 samples per parameter ratio)
+
+### Stacking Regressor
+
+**Base Estimators**: RandomForest(30 trees), XGBoost(30 trees), MLP(12,6 neurons)
+**Meta-learner**: LinearRegression
+**Parameters**:
+
+- `cv=3` - 3-fold cross-validation for meta-training
+- Reduced base model complexity (30 vs 50 trees, 12,6 vs 16,8 neurons)
+- ScaledMLPRegressor wrapper for automatic feature scaling
+- Final prediction: Linear combination of 3 base predictions
+
+## Model Performance Analysis
+
+### Journey Phase Behavior
+
+- **Early-Mid Journey**: MLP/Stacking show superior performance (higher R²)
+- **Near Destination**: Random Forest maintains consistency, MLP/Stacking exhibit error spikes
+- **Cause**: As distance→0, small speed variations create large ETA changes. Neural networks are sensitive to boundary conditions, while tree ensembles handle edge cases gracefully.
+
+### Evaluation Metrics
+
+- **MAE (Mean Absolute Error)**: Average prediction error in minutes - lower is better
+- **MAPE (Mean Absolute Percentage Error)**: Percentage-based error - accounts for scale differences
+- **R² Score**: Explained variance (1.0 = perfect, 0.0 = baseline, negative = worse than baseline)
+
+### Model Selection Notes
+
+- **Overall R²**: Stacking typically achieves highest scores through ensemble learning
+- **Consistency**: Random Forest provides most stable predictions across journey phases
+- **Individual Journeys**: Performance varies - negative R² indicates model performs worse than simply predicting the mean ETA for that specific journey

@@ -1,0 +1,9 @@
+journey_id,update_sequence,elapsed_minutes,time_of_day_hour,time_of_day_minute,is_rush_hour,is_lunch_hour,original_eta_minutes,actual_duration_minutes,time_variance_percent,travel_mode,original_distance_km,original_speed_kmh
+1494,0,0.0,14,22,0,0,12.9,14.0,8.53,Walk,0.96,4.8
+1494,1,2.0,14,24,0,0,12.9,14.0,8.53,Walk,0.96,4.8
+1494,2,4.0,14,26,0,0,12.9,14.0,8.53,Walk,0.96,4.8
+1494,3,6.0,14,28,0,0,12.9,14.0,8.53,Walk,0.96,4.8
+1494,4,8.0,14,30,0,0,12.9,14.0,8.53,Walk,0.96,4.8
+1494,5,10.0,14,32,0,0,12.9,14.0,8.53,Walk,0.96,4.8
+1494,6,12.0,14,34,0,0,12.9,14.0,8.53,Walk,0.96,4.8
+1494,7,14.0,14,36,0,0,12.9,14.0,8.53,Walk,0.96,4.8

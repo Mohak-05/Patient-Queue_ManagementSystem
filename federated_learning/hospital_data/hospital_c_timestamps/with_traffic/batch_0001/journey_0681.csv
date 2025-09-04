@@ -1,0 +1,8 @@
+journey_id,update_sequence,elapsed_minutes,time_of_day_hour,time_of_day_minute,is_rush_hour,is_lunch_hour,original_eta_minutes,actual_duration_minutes,time_variance_percent,travel_mode,original_distance_km,original_speed_kmh
+681,0,0.09,15,23,0,0,10.3,12.12,17.66,Car,1.28,18.5
+681,1,2.83,15,25,0,0,10.3,12.12,17.66,Car,1.28,18.5
+681,2,8.87,15,31,0,0,10.3,12.12,17.66,Car,1.28,18.5
+681,3,12.1,15,35,0,0,10.3,12.12,17.66,Car,1.28,18.5
+681,4,17.71,15,40,0,0,10.3,12.12,17.66,Car,1.28,18.5
+681,5,20.5,15,43,0,0,10.3,12.12,17.66,Car,1.28,18.5
+681,6,12.12,15,35,0,0,10.3,12.12,17.66,Car,1.28,18.5

@@ -1,0 +1,5 @@
+journey_id,timestamp_minutes,latitude,longitude,distance_remaining_km,eta_remaining_minutes
+836,0.48,40.713449,-74.006905,0.105,5.57
+836,2.57,40.713293,-74.006519,0.07,3.36
+836,4.08,40.712834,-74.006556,0.047,1.68
+836,6.19,40.7128,-74.006,0.0,0.0

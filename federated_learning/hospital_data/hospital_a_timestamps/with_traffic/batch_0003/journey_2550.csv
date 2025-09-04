@@ -1,0 +1,11 @@
+journey_id,update_sequence,elapsed_minutes,time_of_day_hour,time_of_day_minute,is_rush_hour,is_lunch_hour,original_eta_minutes,actual_duration_minutes,time_variance_percent,travel_mode,original_distance_km,original_speed_kmh
+2550,0,0.16,11,29,0,0,17.1,20.1,17.52,Bike,1.92,9.8
+2550,1,2.2,11,31,0,0,17.1,20.1,17.52,Bike,1.92,9.8
+2550,2,4.6,11,33,0,0,17.1,20.1,17.52,Bike,1.92,9.8
+2550,3,6.9,11,35,0,0,17.1,20.1,17.52,Bike,1.92,9.8
+2550,4,8.86,11,37,0,0,17.1,20.1,17.52,Bike,1.92,9.8
+2550,5,11.17,11,40,0,0,17.1,20.1,17.52,Bike,1.92,9.8
+2550,6,14.36,11,43,0,0,17.1,20.1,17.52,Bike,1.92,9.8
+2550,7,15.6,11,44,0,0,17.1,20.1,17.52,Bike,1.92,9.8
+2550,8,18.12,11,47,0,0,17.1,20.1,17.52,Bike,1.92,9.8
+2550,9,20.1,11,49,0,0,17.1,20.1,17.52,Bike,1.92,9.8
